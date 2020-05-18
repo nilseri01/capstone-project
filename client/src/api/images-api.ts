@@ -1,0 +1,60 @@
+import { apiEndpoint } from '../config'
+import { ImageItem } from '../types/ImageItem';
+import { CreateImageRequest } from '../types/CreateImageRequest';
+import Axios from 'axios'
+
+export async function getImages(idToken: string): Promise<ImageItem[]> {
+  console.log('Fetching images')
+
+  const response = await Axios.get(`${apiEndpoint}/images`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    },
+  })
+  console.log('Image List: ', response.data)
+  return response.data.items
+}
+
+export async function createImage(
+  idToken: string,
+  newImage: CreateImageRequest
+): Promise<ImageItem> {
+  const response = await Axios.post(`${apiEndpoint}/image`, JSON.stringify(newImage), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    }
+  })
+  return response.data.item
+}
+
+export async function deleteImage(
+  idToken: string,
+  imageId: string
+): Promise<void> {
+  await Axios.delete(`${apiEndpoint}/image/${imageId}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    }
+  })
+}
+
+export async function getUploadUrl(
+  idToken: string,
+  imageId: string,
+  watermark: string
+): Promise<string> {
+  const response = await Axios.post(`${apiEndpoint}/image/${imageId}/file`, watermark, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    }
+  })
+  return response.data.uploadUrl
+}
+
+export async function uploadFile(uploadUrl: string, file: Buffer): Promise<void> {
+  await Axios.put(uploadUrl, file)
+}

@@ -1,0 +1,57 @@
+import 'source-map-support/register'
+
+import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
+import * as AWS from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
+
+import { CreateImageRequest } from '../../requests/CreateImageRequest'
+import { createImage } from '../../businessLayer/Image'
+import { createLogger } from '../../utils/logger'
+import { getHeaders, getUserId } from '../utils'
+import * as uuid from 'uuid'
+
+const XAWS = AWSXRay.captureAWS(AWS)
+const logger = createLogger('image-create')
+const snsArn = process.env.SNS_ARN_CREATE
+
+export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+
+  try {
+    const createdBy = getUserId(event);
+    const newImage: CreateImageRequest = JSON.parse(event.body)
+
+    let imageRequest = {
+      id: uuid.v4(),
+      createdBy,
+      name: newImage.name,
+      watermark: newImage.watermark
+    }
+
+    const newImageResponse = await createImage(imageRequest);
+
+    const snsClient = new XAWS.SNS();
+    var params = {
+      Message: JSON.stringify(imageRequest),
+      Subject: "[IMAGE-CREATION]",
+      TopicArn: snsArn
+    };
+
+    await snsClient.publish(params).promise();
+
+    return {
+      statusCode: 201,
+      headers: getHeaders(),
+      body: JSON.stringify({
+        item: newImageResponse
+      })
+    }
+  } catch (error) {
+    logger.error(error.errorMessage)
+
+    return {
+      statusCode: 500,
+      headers: getHeaders(),
+      body: "Failed to save image"
+    }
+  }
+}
