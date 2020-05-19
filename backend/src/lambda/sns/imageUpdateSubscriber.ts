@@ -18,12 +18,16 @@ export const handler: SNSHandler = async (event: SNSEvent) => {
     for (const snsRecord of event.Records) {
         const image = JSON.parse(snsRecord.Sns.Message)
 
+        logger.info(`Processing item with key: ${image.id}`)
+
         await es.update({
             index: 'image-index',
             id: image.id,
             body: {
-                processDate: new Date().toISOString(),
-                processed: true
+                doc: {
+                    processDate: new Date().toISOString(),
+                    processed: true
+                }
             }
         })
 

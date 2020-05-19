@@ -79,12 +79,12 @@ async function processImage(record) {
     await updateUploadUrl(imageItem.id, imageItem.userId, `https://${thumbnailBucketName}.s3.amazonaws.com/${key}.jpeg`)
     logger.info(`db image update upload url success with key: ${key}`)
 
-    await setProcessed(`${key}`, imageItem.userId);
+    await setProcessed(imageItem.id, imageItem.userId);
     logger.info(`db image set processed success with key: ${key}`)
 
     const snsClient = new XAWS.SNS();
     let imageRequest = {
-        id: key
+        id: imageItem.id
     }
     var snsParams = {
         Message: JSON.stringify(imageRequest),
