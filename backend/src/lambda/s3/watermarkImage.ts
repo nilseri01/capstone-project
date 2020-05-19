@@ -3,7 +3,7 @@ import 'source-map-support/register'
 import * as AWS from 'aws-sdk'
 import * as AWSXRay from 'aws-xray-sdk'
 import Jimp from 'jimp/es'
-import { ImageAccess } from '../../dataLayer/imageAccess'
+import { getImage, updateUploadUrl, setProcessed } from '../../businessLayer/Image';
 import { createLogger } from '../../utils/logger'
 
 const XAWS = AWSXRay.captureAWS(AWS)
@@ -42,9 +42,9 @@ async function processImage(record) {
     const body = response.Body as Buffer
     const image = await Jimp.read(body)
 
-    image.resize(150, Jimp.AUTO)
+    image.resize(640, Jimp.AUTO)
 
-    const font = await Jimp.loadFont(Jimp.FONT_SANS_32_WHITE)
+    const font = await Jimp.loadFont('https://raw.githubusercontent.com/nilseri01/capstone-project/master/backend/fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt')
 
     let textData = {
         text: watermark, //the text to be rendered on the image
@@ -74,15 +74,12 @@ async function processImage(record) {
 
     logger.info(`thumbnail image upload success with key: ${key}`)
 
-    const imageAccess = new ImageAccess();
-    const result = imageAccess.getImageById(key)
-    let imageItem = result[0]
+    const imageItem = await getImage(`${key}`)
 
-    imageAccess.updateUploadUrl(imageItem.id, imageItem.userId, `https://${thumbnailBucketName}.s3.amazonaws.com/${key}.jpeg`)
+    await updateUploadUrl(imageItem.id, imageItem.userId, `https://${thumbnailBucketName}.s3.amazonaws.com/${key}.jpeg`)
     logger.info(`db image update upload url success with key: ${key}`)
 
-    // setProcessed
-    await imageAccess.setProcessed(key);
+    await setProcessed(`${key}`, imageItem.userId);
     logger.info(`db image set processed success with key: ${key}`)
 
     const snsClient = new XAWS.SNS();

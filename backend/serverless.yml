@@ -21,8 +21,8 @@ provider:
 
   environment:
     IMAGES_TABLE: Images-${self:provider.stage}
-    INDEX_NAME: ImageIdIndex
-    IMAGE_INDEX_NAME: ImageIdOnlyIndex
+    INDEX_UI_CD_NAME: ImageUserIdCreatedDateIndex
+    INDEX_ID_NAME: ImageIdIndex
     IMAGES_S3_BUCKET: watermark-images-nilsdev-${self:provider.stage}
     THUMBNAILS_S3_BUCKET: watermark-thumbnails-nilsdev-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 600
@@ -251,7 +251,13 @@ functions:
           - s3:PutObjectTagging
           - s3:GetObjectTagging
         Resource: arn:aws:s3:::${self:provider.environment.THUMBNAILS_S3_BUCKET}/*
-   
+      - Effect: Allow
+        Action:
+          - sns:Publish
+          - sns:Subscribe
+        Resource:
+          - "*"
+
   ImgIdxCrDoc:
     handler: src/lambda/sns/imageCreateSubscriber.handler
     events:
@@ -333,7 +339,7 @@ resources:
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.IMAGES_TABLE}
         LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.INDEX_NAME}
+          - IndexName: ${self:provider.environment.INDEX_UI_CD_NAME}
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH
@@ -342,7 +348,7 @@ resources:
             Projection:
               ProjectionType: ALL
         GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.IMAGE_INDEX_NAME}
+          - IndexName: ${self:provider.environment.INDEX_ID_NAME}
             KeySchema:
               - AttributeName: id
                 KeyType: HASH

@@ -10,7 +10,7 @@ import { createLogger } from '../../utils/logger';
 const XAWS = AWSXRay.captureAWS(AWS)
 const docClient = new XAWS.DynamoDB.DocumentClient()
 const imagesTable = process.env.IMAGES_TABLE;
-const indexName = process.env.INDEX_NAME;
+const indexName = process.env.INDEX_UI_CD_NAME;
 
 const logger = createLogger('image-get-list')
 

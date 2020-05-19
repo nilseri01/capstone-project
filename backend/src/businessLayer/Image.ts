@@ -11,10 +11,23 @@ export async function createImage(image): Promise<ImageItem> {
     return await imageAccess.createImage(image);
 }
 
-export async function getImages(userId) {
+export async function getImage(imageId: String) {
+    const result = await imageAccess.getImageById(imageId)
+    return result[0]
+}
+
+export async function getImages(userId: String) {
     return await imageAccess.getImages(userId)
 }
 
-export async function deleteImage(imageId, userId) {
+export async function deleteImage(imageId: String, userId: String) {
     return await imageAccess.deleteImage(imageId, userId)
+}
+
+export async function updateUploadUrl(imageId: String, userId: String, uploadUrl: String) {
+    return await imageAccess.updateUploadUrl(imageId, userId, uploadUrl)
+}
+
+export async function setProcessed(imageId: String, userId: String) {
+    return await imageAccess.setProcessed(imageId, userId)
 }

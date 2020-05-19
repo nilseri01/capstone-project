@@ -14,8 +14,8 @@ export class ImageAccess {
     constructor(
         private readonly docClient: DocumentClient = createDynamoDBClient(),
         private readonly imagesTable = process.env.IMAGES_TABLE,
-        private readonly indexName = process.env.INDEX_NAME,
-        private readonly imageIndexName = process.env.IMAGE_INDEX_NAME
+        private readonly indexUserIdCreatedDateName = process.env.INDEX_UI_CD_NAME,
+        private readonly indexIdName = process.env.INDEX_ID_NAME
     ) { }
 
     async createImage(imageItem: ImageItem): Promise<ImageItem> {
@@ -30,8 +30,11 @@ export class ImageAccess {
     async getImages(userId: String): Promise<ImageItem[]> {
         const result = await this.docClient.query({
             TableName: this.imagesTable,
-            IndexName: this.indexName,
-            KeyConditionExpression: 'userId = :userId',
+            IndexName: this.indexUserIdCreatedDateName,
+            KeyConditionExpression: '#userId = :userId',
+            ExpressionAttributeNames: {
+                "#userId": "userId"
+            },
             ExpressionAttributeValues: {
                 ':userId': userId
             }
@@ -41,13 +44,16 @@ export class ImageAccess {
         return items as ImageItem[]
     }
 
-    async getImageById(imageId: String): Promise<ImageItem[]> {
+    async getImageById(id: String): Promise<ImageItem[]> {
         const result = await this.docClient.query({
             TableName: this.imagesTable,
-            IndexName: this.imageIndexName,
-            KeyConditionExpression: 'id = :imageId',
+            IndexName: this.indexIdName,
+            KeyConditionExpression: '#id = :id',
+            ExpressionAttributeNames: {
+                "#id": "id"
+            },
             ExpressionAttributeValues: {
-                ':imageId': imageId
+                ':id': id
             }
         }).promise();
 
@@ -68,7 +74,7 @@ export class ImageAccess {
     async updateUploadUrl(imageId: String, userId: String, uploadUrl: String) {
         var params = {
             TableName: this.imagesTable,
-            TableIndex: this.indexName,
+            TableIndex: this.indexUserIdCreatedDateName,
             Key: {
                 id: imageId,
                 userId: userId
@@ -80,17 +86,18 @@ export class ImageAccess {
             ExpressionAttributeValues: {
                 ":a": uploadUrl
             },
-            ReturnValues: "UPDATED_URL"
+            ReturnValues: "ALL_NEW"
         };
         await this.docClient.update(params).promise();
     }
 
-    async setProcessed(imageId: String) {
+    async setProcessed(imageId: String, userId: String) {
         var params = {
             TableName: this.imagesTable,
-            TableIndex: this.indexName,
+            TableIndex: this.indexUserIdCreatedDateName,
             Key: {
-                id: imageId
+                id: imageId,
+                userId: userId
             },
             UpdateExpression: "set #processed = :a",
             ExpressionAttributeNames: {
@@ -99,7 +106,7 @@ export class ImageAccess {
             ExpressionAttributeValues: {
                 ":a": true
             },
-            ReturnValues: "UPDATED_PROCESS"
+            ReturnValues: "ALL_NEW"
         };
         await this.docClient.update(params).promise();
     }
