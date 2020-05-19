@@ -1,13 +1,17 @@
 import { SNSEvent, SNSHandler } from 'aws-lambda'
 import 'source-map-support/register'
 import * as AWS from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
 import Jimp from 'jimp/es'
 import { ImageAccess } from '../../dataLayer/imageAccess'
 import { createLogger } from '../../utils/logger'
 
+const XAWS = AWSXRay.captureAWS(AWS)
 const s3 = new AWS.S3()
 const imagesBucketName = process.env.IMAGES_S3_BUCKET
 const thumbnailBucketName = process.env.THUMBNAILS_S3_BUCKET
+
+const snsArn = process.env.SNS_ARN_WATERMARK
 
 const logger = createLogger('image-watermark')
 
@@ -80,4 +84,18 @@ async function processImage(record) {
     // setProcessed
     await imageAccess.setProcessed(key);
     logger.info(`db image set processed success with key: ${key}`)
+
+    const snsClient = new XAWS.SNS();
+    let imageRequest = {
+        id: key
+    }
+    var snsParams = {
+        Message: JSON.stringify(imageRequest),
+        Subject: "[IMAGE-WATERMARK]",
+        TopicArn: snsArn
+    };
+
+    await snsClient.publish(snsParams).promise();
+
+    logger.info("image watermark SNS publish success")
 }

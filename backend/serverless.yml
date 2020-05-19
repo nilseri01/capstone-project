@@ -172,6 +172,16 @@ functions:
           - xray:PutTraceSegments
         Resource:
           - "*"
+      - Effect: Allow
+        Action:
+          - es:*
+        Resource: "*"
+      - Effect: Allow
+        Action:
+          - sns:Publish
+          - sns:Subscribe
+        Resource:
+          - "*"
 
   GenerateUrl:
     handler: src/lambda/http/generateUploadUrl.handler

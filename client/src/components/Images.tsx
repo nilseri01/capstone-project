@@ -126,13 +126,13 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
   render() {
     return (
       <div>
-        <Header as="h1">Images</Header>
 
         <Form onSubmit={this.handleSubmit}>
           {this.renderUploadImage()}
-
-          {this.renderImages()}
         </Form>
+
+        <Header as="h1">Images</Header>
+        {this.renderImages()}
       </div>
     )
   }
@@ -207,7 +207,16 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
           return (
             <Grid.Row key={image.id}>
               <Grid.Column width={10} verticalAlign="middle">
-                {image.id}
+                {image.name}
+              </Grid.Column>
+              <Grid.Column width={3} floated="right">
+                {image.watermark}
+              </Grid.Column>
+              <Grid.Column width={3} floated="right">
+                {image.createdDate}
+              </Grid.Column>
+              <Grid.Column width={3} floated="right">
+                {image.processed}
               </Grid.Column>
               <Grid.Column width={3} floated="right">
                 {image.processedDate}
