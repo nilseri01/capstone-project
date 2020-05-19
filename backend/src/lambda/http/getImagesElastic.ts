@@ -46,7 +46,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         logger.info("get elasticsearch images success")
         response = result.hits.hits[0]._source;
     } catch (error) {
-        logger.error(error.errorMessage)
+        logger.error(error)
         response = []
     }
 

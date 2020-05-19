@@ -17,15 +17,17 @@ const snsArn = process.env.SNS_ARN_CREATE
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
   try {
-    const createdBy = getUserId(event);
+    const userId = getUserId(event);
     const newImage: CreateImageRequest = JSON.parse(event.body)
 
     let imageRequest = {
       id: uuid.v4(),
-      createdBy,
+      userId,
       name: newImage.name,
       watermark: newImage.watermark
     }
+
+    logger.info(imageRequest)
 
     const newImageResponse = await createImage(imageRequest)
 
@@ -50,7 +52,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       })
     }
   } catch (error) {
-    logger.error(error.errorMessage)
+    logger.error(error)
 
     return {
       statusCode: 500,

@@ -56,7 +56,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       })
     }
   } catch (error) {
-    logger.error(error.errorMessage)
+    logger.error(error)
 
     return {
       statusCode: 500,

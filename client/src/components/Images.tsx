@@ -1,8 +1,8 @@
-import dateFormat from 'dateformat'
 import { History } from 'history'
 import update from 'immutability-helper'
 import * as React from 'react'
 import {
+  Form,
   Button,
   Checkbox,
   Divider,
@@ -67,15 +67,7 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
 
   handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault()
-  }
 
-  setUploadState(uploadState: UploadState) {
-    this.setState({
-      uploadState
-    })
-  }
-
-  onImageCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
     try {
       if (!this.state.file) {
         alert('File should be selected')
@@ -100,6 +92,12 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
     } finally {
       this.setUploadState(UploadState.NoUpload)
     }
+  }
+
+  setUploadState(uploadState: UploadState) {
+    this.setState({
+      uploadState
+    })
   }
 
   onImageDelete = async (imageId: string) => {
@@ -130,30 +128,12 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
       <div>
         <Header as="h1">Images</Header>
 
-        {this.renderCreateImageInput()}
+        <Form onSubmit={this.handleSubmit}>
+          {this.renderUploadImage()}
 
-        {this.renderImages()}
-
-        {this.renderUploadImage()}
+          {this.renderImages()}
+        </Form>
       </div>
-    )
-  }
-
-  renderCreateImageInput() {
-    return (
-      <Grid.Row>
-        <Grid.Column width={16}>
-          <Input
-            disabled
-            fluid
-            placeholder="image name..."
-            onChange={this.handleNameChange}
-          />
-        </Grid.Column>
-        <Grid.Column width={16}>
-
-        </Grid.Column>
-      </Grid.Row>
     )
   }
 
@@ -161,22 +141,28 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
     return (
       <div>
         <h1>Upload new image</h1>
-        <label>File</label>
-        <input
-          type="file"
-          accept="image/*"
-          placeholder="Image to upload"
-          onChange={this.handleFileChange}
-        />
-        <input
-          hidden
-          onChange={this.handleNameChange}
-        />
-        <label>Watermark Text</label>
-        <input
-          placeholder="watermark..."
-          onChange={this.handleWatermarkChange}
-        />
+        <Form.Field>
+          <label>File</label>
+          <input
+            type="file"
+            accept="image/*"
+            placeholder="Image to upload"
+            onChange={this.handleFileChange}
+          />
+        </Form.Field>
+        <Form.Field>
+          <input
+            hidden
+            onChange={this.handleNameChange}
+          />
+        </Form.Field>
+        <Form.Field>
+          <label>Watermark Text</label>
+          <input
+            placeholder="watermark..."
+            onChange={this.handleWatermarkChange}
+          />
+        </Form.Field>
         {this.renderCreateImageButton()}
       </div>
     )
@@ -189,7 +175,6 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
         <Button
           loading={this.state.uploadState !== UploadState.NoUpload}
           type="submit"
-          onClick={() => this.onImageCreate}
         >
           Save
         </Button>

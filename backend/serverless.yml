@@ -118,7 +118,7 @@ functions:
     events:
       - http:
           method: post
-          path: images
+          path: image
           authorizer: Auth
           cors: true
           reqValidatorName: RequestBodyValidator
