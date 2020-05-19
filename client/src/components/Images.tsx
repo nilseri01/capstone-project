@@ -47,6 +47,14 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
     uploadState: UploadState.NoUpload
   }
 
+  handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ name: event.target.value })
+  }
+
+  handleWatermarkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ watermark: event.target.value })
+  }
+
   handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (!files) return
@@ -120,15 +128,13 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
   render() {
     return (
       <div>
-        <Header as="h1">IMAGEs</Header>
+        <Header as="h1">Images</Header>
 
         {this.renderCreateImageInput()}
 
         {this.renderImages()}
 
         {this.renderUploadImage()}
-
-        {this.renderCreateImageButton()}
       </div>
     )
   }
@@ -139,28 +145,13 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
         <Grid.Column width={16}>
           <Input
             disabled
-            action={{
-              color: 'teal',
-              labelPosition: 'left',
-              icon: 'add',
-              content: 'New image'
-            }}
             fluid
-            actionPosition="left"
+            placeholder="image name..."
+            onChange={this.handleNameChange}
           />
         </Grid.Column>
         <Grid.Column width={16}>
-          <Input
-            action={{
-              color: 'teal',
-              labelPosition: 'left',
-              icon: 'add',
-              content: 'Watermark'
-            }}
-            fluid
-            actionPosition="left"
-            placeholder="watermark..."
-          />
+
         </Grid.Column>
       </Grid.Row>
     )
@@ -177,21 +168,16 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
           placeholder="Image to upload"
           onChange={this.handleFileChange}
         />
-        {this.renderButton()}
-      </div>
-    )
-  }
-
-  renderButton() {
-    return (
-      <div>
-        {this.state.uploadState === UploadState.UploadingFile && <p>Uploading file</p>}
-        <Button
-          loading={this.state.uploadState !== UploadState.NoUpload}
-          type="submit"
-        >
-          Upload
-        </Button>
+        <input
+          hidden
+          onChange={this.handleNameChange}
+        />
+        <label>Watermark Text</label>
+        <input
+          placeholder="watermark..."
+          onChange={this.handleWatermarkChange}
+        />
+        {this.renderCreateImageButton()}
       </div>
     )
   }
@@ -205,7 +191,7 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
           type="submit"
           onClick={() => this.onImageCreate}
         >
-          Upload
+          Save
         </Button>
       </div>
     )
@@ -223,7 +209,7 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
     return (
       <Grid.Row>
         <Loader indeterminate active inline="centered">
-          Loading IMAGEs
+          Loading Images
         </Loader>
       </Grid.Row>
     )
