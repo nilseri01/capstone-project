@@ -24,10 +24,16 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     var params = { Bucket: bucketName, Key: imageId };
     s3.deleteObject(params);
 
+    logger.info("s3 image deletion success")
+
     params = { Bucket: thumbnailBucketName, Key: imageId };
     s3.deleteObject(params);
 
+    logger.info("s3 thumbnail deletion success")
+
     await deleteImage(imageId, userId);
+
+    logger.info("db image deletion success")
 
     const snsClient = new XAWS.SNS();
     let imageRequest = {
@@ -40,6 +46,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     };
 
     await snsClient.publish(snsParams).promise();
+
+    logger.info("image deletion SNS publish success")
 
     return {
       statusCode: 200,

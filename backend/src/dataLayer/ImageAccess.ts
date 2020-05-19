@@ -59,19 +59,19 @@ export class ImageAccess {
         await this.docClient.delete({
             TableName: this.imagesTable,
             Key: {
-                imageId,
-                userId
+                id: imageId,
+                userId: userId
             }
         }).promise();
     }
 
-    async updateUrl(imageId: String, userId: String, uploadUrl: String) {
+    async updateUploadUrl(imageId: String, userId: String, uploadUrl: String) {
         var params = {
             TableName: this.imagesTable,
             TableIndex: this.indexName,
             Key: {
-                userId: userId,
-                imageId: imageId
+                id: imageId,
+                userId: userId
             },
             UpdateExpression: "set #uploadUrl = :a",
             ExpressionAttributeNames: {
@@ -80,7 +80,7 @@ export class ImageAccess {
             ExpressionAttributeValues: {
                 ":a": uploadUrl
             },
-            ReturnValues: "UPDATED_NEW"
+            ReturnValues: "UPDATED_URL"
         };
         await this.docClient.update(params).promise();
     }
@@ -90,7 +90,7 @@ export class ImageAccess {
             TableName: this.imagesTable,
             TableIndex: this.indexName,
             Key: {
-                imageId: imageId
+                id: imageId
             },
             UpdateExpression: "set #processed = :a",
             ExpressionAttributeNames: {

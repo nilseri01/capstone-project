@@ -5,6 +5,10 @@ import { getHeaders } from '../utils'
 import * as elasticsearch from 'elasticsearch'
 import * as httpAwsEs from 'http-aws-es'
 
+import { createLogger } from '../../utils/logger';
+
+const logger = createLogger('image-get-es-list')
+
 const esHost = process.env.ELASTICSEARCH_URL
 const es = new elasticsearch.Client({
     hosts: [esHost],
@@ -39,8 +43,10 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
     let response = []
     try {
+        logger.info("get elasticsearch images success")
         response = result.hits.hits[0]._source;
     } catch (error) {
+        logger.error(error.errorMessage)
         response = []
     }
 

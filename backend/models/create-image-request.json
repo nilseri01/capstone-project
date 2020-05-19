@@ -1,18 +1,18 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "title": "todo",
+    "title": "create-image",
     "type": "object",
     "properties": {
         "name": {
             "type": "string"
         },
-        "dueDate": {
+        "watermark": {
             "type": "string"
         }
     },
     "required": [
         "name",
-        "dueDate"
+        "watermark"
     ],
     "additionalProperties": false
 }

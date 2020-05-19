@@ -4,15 +4,12 @@ import { CreateImageRequest } from '../types/CreateImageRequest';
 import Axios from 'axios'
 
 export async function getImages(idToken: string): Promise<ImageItem[]> {
-  console.log('Fetching images')
-
   const response = await Axios.get(`${apiEndpoint}/images`, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
     },
   })
-  console.log('Image List: ', response.data)
   return response.data.items
 }
 

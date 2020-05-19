@@ -4,13 +4,12 @@ import * as AWS from 'aws-sdk'
 import Jimp from 'jimp/es'
 import { ImageAccess } from '../../dataLayer/imageAccess'
 import { createLogger } from '../../utils/logger'
-const logger = createLogger('lambda-s3-watermark-image')
-
 
 const s3 = new AWS.S3()
-
 const imagesBucketName = process.env.IMAGES_S3_BUCKET
 const thumbnailBucketName = process.env.THUMBNAILS_S3_BUCKET
+
+const logger = createLogger('image-watermark')
 
 export const handler: SNSHandler = async (event: SNSEvent) => {
     logger.info(`Processing SNS event ${JSON.stringify(event)}`)
@@ -26,6 +25,7 @@ export const handler: SNSHandler = async (event: SNSEvent) => {
 async function processImage(record) {
     const key = record.s3.object.key
     logger.info(`Processing S3 item with key: ${key}`)
+
     const response = await s3
         .getObject({
             Bucket: imagesBucketName,
@@ -58,6 +58,8 @@ async function processImage(record) {
 
     const convertedBuffer = await image.getBufferAsync(Jimp.MIME_JPEG)
 
+    logger.info(`image watermark success with key: ${key}`)
+
     await s3
         .putObject({
             Bucket: thumbnailBucketName,
@@ -66,12 +68,16 @@ async function processImage(record) {
         })
         .promise()
 
+    logger.info(`thumbnail image upload success with key: ${key}`)
+
     const imageAccess = new ImageAccess();
     const result = imageAccess.getImageById(key)
     let todo = result[0]
 
-    imageAccess.updateUrl(todo.todoId, todo.userId, `https://${thumbnailBucketName}.s3.amazonaws.com/${key}.jpeg`)
+    imageAccess.updateUploadUrl(todo.todoId, todo.userId, `https://${thumbnailBucketName}.s3.amazonaws.com/${key}.jpeg`)
+    logger.info(`db image update upload url success with key: ${key}`)
 
     // setProcessed
     await imageAccess.setProcessed(key);
+    logger.info(`db image set processed success with key: ${key}`)
 }

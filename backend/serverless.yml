@@ -1,5 +1,5 @@
 service:
-  name: serverless-image-tag-app
+  name: serverless-image-watermark-app
 
 plugins:
   - serverless-webpack
@@ -23,8 +23,8 @@ provider:
     IMAGES_TABLE: Images-${self:provider.stage}
     INDEX_NAME: ImageIdIndex
     IMAGE_INDEX_NAME: ImageIdOnlyIndex
-    IMAGES_S3_BUCKET: serverless-tag-images-nilsdev-${self:provider.stage}
-    THUMBNAILS_S3_BUCKET: serverless-tag-thumbnails-nilsdev-${self:provider.stage}
+    IMAGES_S3_BUCKET: serverless-watermark-images-nilsdev-${self:provider.stage}
+    THUMBNAILS_S3_BUCKET: serverless-watermark-thumbnails-nilsdev-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 600
     ELASTICSEARCH_URL:
       Fn::GetAtt: ["ImageSearch", "DomainEndpoint"]
@@ -311,18 +311,26 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: createdAt
+          - AttributeName: createdDate
             AttributeType: S
-          - AttributeName: todoId
+          - AttributeName: processDate
             AttributeType: S
-          - AttributeName: attachmentUrl
+          - AttributeName: processed
+            AttributeType: S
+          - AttributeName: uploadUrl
+            AttributeType: S
+          - AttributeName: name
+            AttributeType: S
+          - AttributeName: watermark
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: todoId
+          - AttributeName: id
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.IMAGES_TABLE}
@@ -338,9 +346,9 @@ resources:
         GlobalSecondaryIndexes:
           - IndexName: ${self:provider.environment.IMAGE_INDEX_NAME}
             KeySchema:
-              - AttributeName: todoId
+              - AttributeName: id
                 KeyType: HASH
-              - AttributeName: attachmentUrl
+              - AttributeName: uploadUrl
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL

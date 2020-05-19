@@ -1,6 +1,6 @@
 export interface ImageItem {
   id: string
-  createdBy: string
+  userId: string
   createdDate: string
   processDate: string
   processed: boolean

@@ -79,7 +79,7 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
         watermark: this.state.watermark
       })
 
-      const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), newImage.id);
+      const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), newImage.id, newImage.watermark);
 
       this.setUploadState(UploadState.UploadingFile)
       await uploadFile(uploadUrl, this.state.file)

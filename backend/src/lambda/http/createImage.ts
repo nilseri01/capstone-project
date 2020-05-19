@@ -27,7 +27,9 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       watermark: newImage.watermark
     }
 
-    const newImageResponse = await createImage(imageRequest);
+    const newImageResponse = await createImage(imageRequest)
+
+    logger.info("image creation success")
 
     const snsClient = new XAWS.SNS();
     var params = {
@@ -37,6 +39,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     };
 
     await snsClient.publish(params).promise();
+
+    logger.info("image creation SNS publish success")
 
     return {
       statusCode: 201,
