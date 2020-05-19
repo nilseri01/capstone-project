@@ -9,7 +9,7 @@ import { createLogger } from '../../utils/logger';
 
 const XAWS = AWSXRay.captureAWS(AWS)
 const docClient = new XAWS.DynamoDB.DocumentClient()
-const todosTable = process.env.IMAGES_TABLE;
+const imagesTable = process.env.IMAGES_TABLE;
 const indexName = process.env.INDEX_NAME;
 
 const logger = createLogger('image-get-list')
@@ -18,7 +18,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const userId = event.requestContext.authorizer.principalId;
 
   const result = await docClient.query({
-    TableName: todosTable,
+    TableName: imagesTable,
     IndexName: indexName,
     KeyConditionExpression: 'userId = :userId',
     ExpressionAttributeValues: {

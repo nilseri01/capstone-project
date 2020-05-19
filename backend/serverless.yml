@@ -1,5 +1,5 @@
 service:
-  name: serverless-image-watermark-app
+  name: image-watermark-app
 
 plugins:
   - serverless-webpack
@@ -23,8 +23,8 @@ provider:
     IMAGES_TABLE: Images-${self:provider.stage}
     INDEX_NAME: ImageIdIndex
     IMAGE_INDEX_NAME: ImageIdOnlyIndex
-    IMAGES_S3_BUCKET: serverless-watermark-images-nilsdev-${self:provider.stage}
-    THUMBNAILS_S3_BUCKET: serverless-watermark-thumbnails-nilsdev-${self:provider.stage}
+    IMAGES_S3_BUCKET: watermark-images-nilsdev-${self:provider.stage}
+    THUMBNAILS_S3_BUCKET: watermark-thumbnails-nilsdev-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 600
     ELASTICSEARCH_URL:
       Fn::GetAtt: ["ImageSearch", "DomainEndpoint"]
@@ -54,7 +54,7 @@ provider:
     IMAGE_DELETE_TOPIC: imageDeleteTopic-${self:provider.stage}
 
 custom:
-  topicName: imagesTopic-${self:provider.stage}
+  topicName: imageTopic-${self:provider.stage}
   documentation:
     api:
       info:
@@ -71,7 +71,6 @@ functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
-  # TODO: Configure this function
   GetImages:
     handler: src/lambda/http/getImages.handler
     events:
@@ -95,7 +94,7 @@ functions:
         Resource:
           - "*"
 
-  GetTodosElastic:
+  GetImagesElastic:
     handler: src/lambda/http/getImagesElastic.handler
     events:
       - http:
@@ -114,8 +113,6 @@ functions:
           - es:*
         Resource: "*"
 
-
-  # TODO: Configure this function
   CreateImage:
     handler: src/lambda/http/createImage.handler
     events:
@@ -176,7 +173,7 @@ functions:
         Resource:
           - "*"
 
-  GenerateUploadUrl:
+  GenerateUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
       - http:
@@ -191,7 +188,7 @@ functions:
           - s3:GetObject
           - s3:PutObjectTagging
         Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
-       - Effect: Allow
+      - Effect: Allow
         Action:
           - dynamodb:UpdateItem
           - dynamodb:GetItem
@@ -245,7 +242,7 @@ functions:
           - s3:GetObjectTagging
         Resource: arn:aws:s3:::${self:provider.environment.THUMBNAILS_S3_BUCKET}/*
    
-  ImageIndexCreateDoc:
+  ImgIdxCrDoc:
     handler: src/lambda/sns/imageCreateSubscriber.handler
     events:
       - sns:
@@ -258,7 +255,7 @@ functions:
         Resource:
           - "*"
 
-  ImageIndexUpdateDoc:
+  ImgIdxUpDoc:
     handler: src/lambda/sns/imageUpdateSubscriber.handler
     events:
       - sns:
@@ -271,7 +268,7 @@ functions:
         Resource:
           - "*"
 
-  ImageIndexDeleteDoc:
+  ImgIdxDelDoc:
     handler: src/lambda/sns/imageDeleteSubscriber.handler
     events:
       - sns:
@@ -286,7 +283,6 @@ functions:
 
 resources:
   Resources:
-    # TODO: Add any necessary AWS resources
     RequestBodyValidator:
       Type: AWS::ApiGateway::RequestValidator
       Properties:
@@ -307,7 +303,7 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
 
-    TodosTable:
+    ImagesTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
@@ -317,15 +313,7 @@ resources:
             AttributeType: S
           - AttributeName: createdDate
             AttributeType: S
-          - AttributeName: processDate
-            AttributeType: S
-          - AttributeName: processed
-            AttributeType: S
           - AttributeName: uploadUrl
-            AttributeType: S
-          - AttributeName: name
-            AttributeType: S
-          - AttributeName: watermark
             AttributeType: S
         KeySchema:
           - AttributeName: userId
@@ -339,7 +327,7 @@ resources:
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH
-              - AttributeName: createdAt
+              - AttributeName: createdDate
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
@@ -353,37 +341,14 @@ resources:
             Projection:
               ProjectionType: ALL
 
-    AttachmentBucket:
+    ImagesBucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:provider.environment.IMAGES_S3_BUCKET}
         NotificationConfiguration:
           TopicConfigurations:
             - Event: s3:ObjectCreated:Put
-              Topic: !Ref ImagesTopic
-        CorsConfiguration:
-          CorsRules:
-            -
-              AllowedOrigins:
-                - '*'
-              AllowedHeaders:
-                - '*'
-              AllowedMethods:
-                - GET
-                - PUT
-                - POST
-                - DELETE
-                - HEAD
-              MaxAge: 3000
-
-    ThumbnailBucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${self:provider.environment.THUMBNAIL_S3_BUCKET}
-        NotificationConfiguration:
-          TopicConfigurations:
-            - Event: s3:ObjectCreated:Put
-              Topic: !Ref ImageWatermarkTopic
+              Topic: !Ref ImageTopic
         CorsConfiguration:
           CorsRules:
             -
@@ -413,7 +378,7 @@ resources:
                 - s3:GetObject
                 - s3:PutObject
               Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
-        Bucket: !Ref AttachmentBucket
+        Bucket: !Ref ImagesBucket
 
     CreateSNSTopicPolicy:
       Type: AWS::SNS::TopicPolicy
@@ -426,17 +391,21 @@ resources:
                 AWS: "*"
               Action: sns:Publish
               Resource:
-                !Ref ImagesTopic
+                !Ref ImageTopic
               Condition:
                 ArnLike:
                   AWS:SourceArn: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}
         Topics:
-          - !Ref ImagesTopic
+          - !Ref ImageTopic
 
-    ThumbnailsBucket:
+    WatermarkBucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:provider.environment.THUMBNAILS_S3_BUCKET}
+        NotificationConfiguration:
+          TopicConfigurations:
+            - Event: s3:ObjectCreated:Put
+              Topic: !Ref ImageWatermarkTopic
         CorsConfiguration:
           CorsRules:
             -
@@ -452,7 +421,7 @@ resources:
                 - HEAD
               MaxAge: 3000
 
-    ThumbnailsBucketPolicy:
+    WatermarkBucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:
         PolicyDocument:
@@ -466,7 +435,7 @@ resources:
                 - s3:GetObject
                 - s3:PutObject
               Resource: arn:aws:s3:::${self:provider.environment.THUMBNAILS_S3_BUCKET}/*
-        Bucket: !Ref ThumbnailsBucket
+        Bucket: !Ref WatermarkBucket
 
     UpdateSNSTopicPolicy:
       Type: AWS::SNS::TopicPolicy
@@ -479,14 +448,14 @@ resources:
                 AWS: "*"
               Action: sns:Publish
               Resource:
-                !Ref ImageUploadTopic
+                !Ref ImageWatermarkTopic
               Condition:
                 ArnLike:
                   AWS:SourceArn: arn:aws:s3:::${self:provider.environment.THUMBNAILS_S3_BUCKET}
         Topics:
-          - !Ref ImageUploadTopic
+          - !Ref ImageWatermarkTopic
 
-    ImagesTopic:
+    ImageTopic:
       Type: AWS::SNS::Topic
       Properties:
         DisplayName: Image bucket topic

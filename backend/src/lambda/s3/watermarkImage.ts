@@ -72,9 +72,9 @@ async function processImage(record) {
 
     const imageAccess = new ImageAccess();
     const result = imageAccess.getImageById(key)
-    let todo = result[0]
+    let imageItem = result[0]
 
-    imageAccess.updateUploadUrl(todo.todoId, todo.userId, `https://${thumbnailBucketName}.s3.amazonaws.com/${key}.jpeg`)
+    imageAccess.updateUploadUrl(imageItem.id, imageItem.userId, `https://${thumbnailBucketName}.s3.amazonaws.com/${key}.jpeg`)
     logger.info(`db image update upload url success with key: ${key}`)
 
     // setProcessed
