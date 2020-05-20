@@ -207,19 +207,11 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
           return (
             <Grid.Row key={image.id}>
               <Grid.Column width={10} verticalAlign="middle">
-                {image.name}
-              </Grid.Column>
-              <Grid.Column width={3} floated="right">
-                {image.watermark}
-              </Grid.Column>
-              <Grid.Column width={3} floated="right">
-                {image.createdDate}
-              </Grid.Column>
-              <Grid.Column width={3} floated="right">
-                {image.processed}
-              </Grid.Column>
-              <Grid.Column width={3} floated="right">
-                {image.processedDate}
+                <p>Name: {image.name}</p>
+                <p>Watermark: {image.watermark}</p>
+                <p>CreatedDate: {image.createdDate}</p>
+                <p>Processed: {image.processed}</p>
+                <p>ProcessDate: {image.processedDate}</p>
               </Grid.Column>
               <Grid.Column width={1} floated="right">
                 <Button

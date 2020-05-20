@@ -251,12 +251,6 @@ functions:
           - s3:PutObjectTagging
           - s3:GetObjectTagging
         Resource: arn:aws:s3:::${self:provider.environment.THUMBNAILS_S3_BUCKET}/*
-      - Effect: Allow
-        Action:
-          - sns:Publish
-          - sns:Subscribe
-        Resource:
-          - "*"
 
   ImgIdxCrDoc:
     handler: src/lambda/sns/imageCreateSubscriber.handler

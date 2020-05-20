@@ -1,17 +1,13 @@
 import { SNSEvent, SNSHandler } from 'aws-lambda'
 import 'source-map-support/register'
 import * as AWS from 'aws-sdk'
-import * as AWSXRay from 'aws-xray-sdk'
 import Jimp from 'jimp/es'
 import { getImage, updateUploadUrl, setProcessed } from '../../businessLayer/Image';
 import { createLogger } from '../../utils/logger'
 
-const XAWS = AWSXRay.captureAWS(AWS)
 const s3 = new AWS.S3()
 const imagesBucketName = process.env.IMAGES_S3_BUCKET
 const thumbnailBucketName = process.env.THUMBNAILS_S3_BUCKET
-
-const snsArn = process.env.SNS_ARN_WATERMARK
 
 const logger = createLogger('image-watermark')
 
@@ -74,25 +70,11 @@ async function processImage(record) {
 
     logger.info(`thumbnail image upload success with key: ${key}`)
 
-    const imageItem = await getImage(`${key}`)
+    const imageItem = await getImage(key)
 
     await updateUploadUrl(imageItem.id, imageItem.userId, `https://${thumbnailBucketName}.s3.amazonaws.com/${key}.jpeg`)
-    logger.info(`db image update upload url success with key: ${key}`)
+    logger.info(`db image update upload url success with id: ${imageItem.id}`)
 
     await setProcessed(imageItem.id, imageItem.userId);
-    logger.info(`db image set processed success with key: ${key}`)
-
-    const snsClient = new XAWS.SNS();
-    let imageRequest = {
-        id: imageItem.id
-    }
-    var snsParams = {
-        Message: JSON.stringify(imageRequest),
-        Subject: "[IMAGE-WATERMARK]",
-        TopicArn: snsArn
-    };
-
-    await snsClient.publish(snsParams).promise();
-
-    logger.info("image watermark SNS publish success")
+    logger.info(`db image set processed success with id: ${imageItem.id}`)
 }

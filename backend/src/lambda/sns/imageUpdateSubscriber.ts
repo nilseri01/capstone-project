@@ -15,23 +15,29 @@ const es = new elasticsearch.Client({
 const logger = createLogger('image-update-es')
 
 export const handler: SNSHandler = async (event: SNSEvent) => {
+    logger.info(`Processing SNS event ${JSON.stringify(event)}`)
     for (const snsRecord of event.Records) {
-        const image = JSON.parse(snsRecord.Sns.Message)
+        const s3EventStr = snsRecord.Sns.Message
+        const s3Event = JSON.parse(s3EventStr)
+        for (const record of s3Event.Records) {
+            const key = record.s3.object.key
 
-        logger.info(`Processing item with key: ${image.id}`)
+            const imageId = key.substr(0, key.indexOf('.jpeg'))
+            logger.info(`Processing item with key: ${imageId}`);
 
-        await es.update({
-            index: 'image-index',
-            id: image.id,
-            body: {
-                doc: {
-                    processDate: new Date().toISOString(),
-                    processed: true
+            await es.update({
+                index: 'image-index',
+                id: imageId,
+                body: {
+                    doc: {
+                        processDate: new Date().toISOString(),
+                        processed: true
+                    }
                 }
-            }
-        })
+            })
 
-        logger.info(`elasticsearch update success with id: ${image.id}`)
+            logger.info(`elasticsearch update success with key: ${imageId}`)
+        }
+        await es.indices.refresh({ index: 'image-index' })
     }
-    await es.indices.refresh({ index: 'image-index' })
 }
