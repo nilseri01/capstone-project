@@ -298,7 +298,7 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
           return (
             <Grid.Row key={image.id}>
               <Grid.Column width={10} verticalAlign="middle">
-                <p>Name: {image.name}</p>
+                <p>Name: <a href={image.uploadUrl} target="_blank">{image.name}</a></p>
                 <p>Watermark: {image.watermark}</p>
                 <p>CreatedDate: {this.formatDate(image.createdDate)}</p>
                 <p>Processed: {String(image.processed)}</p>

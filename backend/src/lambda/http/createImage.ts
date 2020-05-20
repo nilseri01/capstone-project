@@ -35,7 +35,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
     const snsClient = new XAWS.SNS();
     var params = {
-      Message: JSON.stringify(imageRequest),
+      Message: JSON.stringify(newImageResponse),
       Subject: "[IMAGE-CREATION]",
       TopicArn: snsArn
     };
