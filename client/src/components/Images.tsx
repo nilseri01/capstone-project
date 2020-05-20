@@ -1,3 +1,4 @@
+import dateFormat from 'dateformat'
 import { History } from 'history'
 import update from 'immutability-helper'
 import * as React from 'react'
@@ -17,6 +18,7 @@ import {
 import { createImage, deleteImage, getImages, getUploadUrl, uploadFile } from '../api/images-api'
 import Auth from '../auth/Auth'
 import { ImageItem } from '../types/ImageItem'
+import { threadId } from 'worker_threads'
 
 enum UploadState {
   NoUpload,
@@ -45,6 +47,13 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
     name: '',
     watermark: '',
     uploadState: UploadState.NoUpload
+  }
+
+  fileInputRef: React.RefObject<HTMLInputElement>
+
+  constructor(props: ImagesProps, state: ImagesState) {
+    super(props, state)
+    this.fileInputRef = React.createRef()
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,17 +100,18 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
 
       this.setState({
         images: [...this.state.images, newImage],
+        name: '',
+        watermark: '',
+        file: undefined
       })
 
+      if (this.fileInputRef.current != null) {
+        this.fileInputRef.current.value = ''
+      }
     } catch {
       alert('Image item creation failed')
     } finally {
       this.setUploadState(UploadState.NoUpload)
-
-      this.setState({
-        name: '',
-        watermark: ''
-      })
     }
   }
 
@@ -157,6 +167,7 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
           <input
             type="file"
             accept="image/*"
+            ref={this.fileInputRef}
             placeholder="Image to upload"
             onChange={this.handleFileChange}
           />
@@ -223,9 +234,9 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
               <Grid.Column width={10} verticalAlign="middle">
                 <p>Name: {image.name}</p>
                 <p>Watermark: {image.watermark}</p>
-                <p>CreatedDate: {image.createdDate}</p>
+                <p>CreatedDate: {this.formatDate(image.createdDate)}</p>
                 <p>Processed: {String(image.processed)}</p>
-                <p>ProcessDate: {image.processDate}</p>
+                <p>ProcessDate: {this.formatDate(image.processDate)}</p>
               </Grid.Column>
               <Grid.Column width={1} floated="right">
                 <Button
@@ -247,5 +258,12 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
         })}
       </Grid>
     )
+  }
+
+  formatDate(date: string): string {
+    if (!date || date.length === 0) {
+      return date
+    }
+    return dateFormat(date, 'dd-mm-yyyy hh:MM:ss') as string
   }
 }
