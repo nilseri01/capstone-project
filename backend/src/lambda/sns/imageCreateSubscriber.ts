@@ -20,7 +20,6 @@ export const handler: SNSHandler = async (event: SNSEvent) => {
 
         await es.index({
             index: 'image-index',
-            type: 'watermark',
             id: image.id,
             body: {
                 userId: image.userId,

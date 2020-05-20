@@ -42,12 +42,19 @@ async function processImage(record) {
 
     const font = await Jimp.loadFont('https://raw.githubusercontent.com/nilseri01/capstone-project/master/backend/fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt')
 
+    const maxWidth = image.getWidth() - 20 //image width - 10px margin left - 10px margin right
+    const maxHeight = 15 + 20 //logo height + margin
+    const placementX = 10 // 10px in on the x axis
+    const placementY = image.getHeight() - (15 + 20) - 10 //bottom of the image: height - maxHeight - margin 
+    logger.info(`image watermark parameter values maxWidth: ${maxWidth}, maxHeight: ${maxHeight}, ` +
+        `placementX: ${placementX}, placementY: ${placementY}`)
+
     let textData = {
         text: watermark, //the text to be rendered on the image
-        maxWidth: image.getWidth() - 20, //image width - 10px margin left - 10px margin right
-        maxHeight: 15 + 20, //logo height + margin
-        placementX: 10, // 10px in on the x axis
-        placementY: image.getWidth() - (15 + 20) - 10 //bottom of the image: height - maxHeight - margin 
+        maxWidth: maxWidth,
+        maxHeight: maxHeight,
+        placementX: placementX,
+        placementY: placementY
     };
 
     await image.print(font, textData.placementX, textData.placementY, {

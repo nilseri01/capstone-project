@@ -27,8 +27,7 @@ export const handler: SNSHandler = async (event: SNSEvent) => {
 
             await es.update({
                 index: 'image-index',
-                type: 'watermark',
-                id: imageId,
+                id: `${imageId}`,
                 body: {
                     doc: {
                         processDate: new Date().toISOString(),

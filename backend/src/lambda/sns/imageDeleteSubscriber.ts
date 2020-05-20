@@ -22,7 +22,6 @@ export const handler: SNSHandler = async (event: SNSEvent) => {
 
         await es.delete({
             index: 'image-index',
-            type: 'watermark',
             id: image.id
         })
 
