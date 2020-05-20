@@ -1,7 +1,7 @@
 ## Capstone Project
 
 This is a serverless web project where you can upload your images to watermark them with the text you provide (max 30 length).
-After the image is processed, it will be resized and watermarked (Font color is white for watermarking, so please prefer dark colored images to see the effect. The text will appear in the middle of the bottom of the image)
+After the image is processed, it will be resized and watermarked (Font color is white for watermarking, so please prefer dark colored images to see the effect. The text will appear in the middle of the bottom of the image).
 
 When you first login from web (Auth0), all your images will be displayed (by querying the DynamoDB table).
 You can search with watermark text as your key; here an ElasticSearch query will be performed for matching watermark values (exact text match).
@@ -16,7 +16,7 @@ As soon as S3 save (bucket=thumbnail) is performed, another SNS creation is trig
 When you click delete icon next to the image, item record will be deleted from DB and the related images (image and watermarked thumbnail) will be deleted from S3 buckets and also SNS creation is triggered to delete ES doc for that item.
 
 Backend API list is provided in a Postman Collection, you can download here => https://github.com/nilseri01/capstone-project/raw/master/other/postman/Udacity_Capstone_Project.postman_collection.json  
-apiId is <font color="green">402wwyptb5</font> for the project
+apiId is <b>402wwyptb5</b> for the project
 
 **Note: Example code from a sample project was used for watermarking => https://medium.com/@rossbulat/image-processing-in-nodejs-with-jimp-174f39336153
 
