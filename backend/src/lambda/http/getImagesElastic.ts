@@ -41,20 +41,23 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         }
     })
 
-    let response = []
+    let items = []
     try {
         logger.info("get elasticsearch images success")
-        response = result.hits.hits[0]._source;
+        let response = result.hits.hits;
+        for (const item of response) {
+            items.push(item._source)
+        }
     } catch (error) {
         logger.error(error)
-        response = []
+        items = []
     }
 
     return {
         statusCode: 200,
         headers: getHeaders(),
         body: JSON.stringify({
-            response
+            items
         })
     }
 }

@@ -13,6 +13,19 @@ export async function getImages(idToken: string): Promise<ImageItem[]> {
   return response.data.items
 }
 
+export async function getImagesES(idToken: string, searchKey: string): Promise<ImageItem[]> {
+  const response = await Axios.get(`${apiEndpoint}/images/elastic`, {
+    params: {
+      query: searchKey
+    },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    },
+  })
+  return response.data.items
+}
+
 export async function createImage(
   idToken: string,
   newImage: CreateImageRequest

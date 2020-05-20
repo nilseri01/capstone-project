@@ -24,7 +24,7 @@ export const handler: SNSHandler = async (event: SNSEvent) => {
             id: image.id,
             body: {
                 userId: image.userId,
-                imageId: image.id,
+                id: image.id,
                 createdDate: image.createdDate,
                 name: image.name,
                 watermark: image.watermark,

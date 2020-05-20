@@ -14,8 +14,9 @@ import {
   Image,
   Loader
 } from 'semantic-ui-react'
+import { Link, Route, Router, Switch } from 'react-router-dom'
 
-import { createImage, deleteImage, getImages, getUploadUrl, uploadFile } from '../api/images-api'
+import { createImage, deleteImage, getImages, getUploadUrl, uploadFile, getImagesES } from '../api/images-api'
 import Auth from '../auth/Auth'
 import { ImageItem } from '../types/ImageItem'
 import { threadId } from 'worker_threads'
@@ -36,7 +37,8 @@ interface ImagesState {
   file: any
   name: string
   watermark: string
-  uploadState: UploadState
+  uploadState: UploadState,
+  searchKey: string
 }
 
 export class Images extends React.PureComponent<ImagesProps, ImagesState> {
@@ -46,7 +48,8 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
     file: undefined,
     name: '',
     watermark: '',
-    uploadState: UploadState.NoUpload
+    uploadState: UploadState.NoUpload,
+    searchKey: ''
   }
 
   fileInputRef: React.RefObject<HTMLInputElement>
@@ -72,6 +75,10 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
       file: files[0],
       name: files[0].name
     })
+  }
+
+  handleSearchKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ searchKey: event.target.value })
   }
 
   handleSubmit = async (event: React.SyntheticEvent) => {
@@ -133,6 +140,10 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
   }
 
   async componentDidMount() {
+    this.loadAllImages()
+  }
+
+  async loadAllImages() {
     try {
       const images = await getImages(this.props.auth.getIdToken())
       this.setState({
@@ -147,7 +158,12 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
   render() {
     return (
       <div>
+        <Header as="h1">Search Images (with ElasticSearch)</Header>
+        <Form onSubmit={this.handleSearch}>
+          {this.renderSearch()}
+        </Form>
 
+        <Header as="h1">Upload new image</Header>
         <Form onSubmit={this.handleSubmit}>
           {this.renderUploadImage()}
         </Form>
@@ -158,10 +174,60 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
     )
   }
 
+  handleAllImages = async (event: React.SyntheticEvent) => {
+    event.preventDefault()
+
+    this.loadAllImages()
+  }
+
+  handleSearch = async (event: React.SyntheticEvent) => {
+    event.preventDefault()
+
+    try {
+      if (!this.state.searchKey || this.state.searchKey.length === 0) {
+        alert('Search text should not be empty')
+        return
+      }
+
+      this.state.images = await getImagesES(this.props.auth.getIdToken(), this.state.searchKey)
+
+      this.setState({
+        searchKey: ''
+      })
+    } catch {
+      alert('Search failed')
+    }
+  }
+
+  renderSearch() {
+    return (
+      <div>
+        <Form.Field>
+          <label>Search Text</label>
+          <input
+            maxLength={30}
+            value={this.state.searchKey}
+            placeholder="Search..."
+            onChange={this.handleSearchKeyChange}
+          />
+        </Form.Field>
+        <Button
+          type="submit"
+        >
+          Search
+        </Button>
+        <Button
+          onClick={this.handleAllImages}
+        >
+          Load All
+      </Button>
+      </div>
+    )
+  }
+
   renderUploadImage() {
     return (
       <div>
-        <h1>Upload new image</h1>
         <Form.Field>
           <label>File</label>
           <input
