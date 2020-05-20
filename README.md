@@ -16,7 +16,8 @@ As soon as S3 save (bucket=thumbnail) is performed, another SNS creation is trig
 When you click delete icon next to the image, item record will be deleted from DB and the related images (image and watermarked thumbnail) will be deleted from S3 buckets and also SNS creation is triggered to delete ES doc for that item.
 
 Backend API list is provided in a Postman Collection, you can download here => https://github.com/nilseri01/capstone-project/raw/master/other/postman/Udacity_Capstone_Project.postman_collection.json  
-apiId is <b>402wwyptb5</b> for the project
+apiId is <b>402wwyptb5</b> for the project  
+(There is no update api since there are a lot of update processed in the background - both DB and ES)
 
 **Note: Example code from a sample project was used for watermarking => https://medium.com/@rossbulat/image-processing-in-nodejs-with-jimp-174f39336153
 
