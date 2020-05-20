@@ -164,6 +164,7 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
         <Form.Field>
           <input
             hidden
+            value={this.state.name}
             onChange={this.handleNameChange}
           />
         </Form.Field>
@@ -171,6 +172,7 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
           <label>Watermark Text</label>
           <input
             maxLength={30}
+            value={this.state.watermark}
             placeholder="watermark..."
             onChange={this.handleWatermarkChange}
           />
