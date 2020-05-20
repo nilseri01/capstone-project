@@ -23,4 +23,4 @@ When you click delete icon next to the image, the related images (image and wate
 Backend API list is provided in Postman Collection, provided here => 
 
 ### Screenshot:
-![web page](https://github.com/nilseri01/capstone-project/master/other/screenshots/screenshot.png?raw=true)
+![web page](https://github.com/nilseri01/capstone-project/raw/master/other/screenshots/screenshot.png)
