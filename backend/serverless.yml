@@ -492,7 +492,7 @@ resources:
     ImageSearch:
       Type: AWS::Elasticsearch::Domain
       Properties:
-        ElasticsearchVersion: '6.3'
+        ElasticsearchVersion: '7.4'
         DomainName: image-search-${self:provider.stage}
         ElasticsearchClusterConfig:
           DedicatedMasterEnabled: false

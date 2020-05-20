@@ -18,6 +18,8 @@ export const handler: SNSHandler = async (event: SNSEvent) => {
     for (const snsRecord of event.Records) {
         const image = JSON.parse(snsRecord.Sns.Message)
 
+        logger.info(image)
+
         await es.index({
             index: 'image-index',
             id: image.id,

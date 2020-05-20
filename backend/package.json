@@ -7,7 +7,7 @@
     "@types/http-errors": "^1.6.1",
     "aws-xray-sdk": "^2.2.0",
     "axios": "^0.19.0",
-    "elasticsearch": "^15.1.1",
+    "elasticsearch": "^16.7.1",
     "http-aws-es": "^6.0.0",
     "http-errors": "^1.7.2",
     "jimp": "^0.10.0",
