@@ -5,6 +5,8 @@ import * as httpAwsEs from 'http-aws-es'
 
 import { createLogger } from '../../utils/logger'
 
+const thumbnailBucketName = process.env.THUMBNAILS_S3_BUCKET
+
 const esHost = process.env.ELASTICSEARCH_URL
 
 const es = new elasticsearch.Client({
@@ -32,7 +34,8 @@ export const handler: SNSHandler = async (event: SNSEvent) => {
                 body: {
                     doc: {
                         processDate: new Date().toISOString(),
-                        processed: true
+                        processed: true,
+                        uploadUrl: `https://${thumbnailBucketName}.s3.amazonaws.com/${imageId}.jpeg`
                     }
                 }
             })
