@@ -7,6 +7,7 @@ const bucketName = process.env.IMAGES_S3_BUCKET;
 export async function createImage(image): Promise<ImageItem> {
     image.createdDate = new Date().toISOString()
     image.processed = false
+    image.processDate = ''
     image.uploadUrl = `https://${bucketName}.s3.amazonaws.com/${image.id}`
     return await imageAccess.createImage(image);
 }
@@ -29,5 +30,5 @@ export async function updateUploadUrl(imageId: String, userId: String, uploadUrl
 }
 
 export async function setProcessed(imageId: String, userId: String) {
-    return await imageAccess.setProcessed(imageId, userId)
+    return await imageAccess.setProcessed(imageId, userId, new Date().toISOString())
 }

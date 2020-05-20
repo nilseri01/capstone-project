@@ -27,7 +27,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
                     "must": [
                         {
                             "match": {
-                                "name": queryWord
+                                "watermark": queryWord
                             }
                         },
                         {

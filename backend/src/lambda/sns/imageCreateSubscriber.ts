@@ -20,6 +20,7 @@ export const handler: SNSHandler = async (event: SNSEvent) => {
 
         await es.index({
             index: 'image-index',
+            type: 'watermark',
             id: image.id,
             body: {
                 userId: image.userId,
@@ -28,6 +29,7 @@ export const handler: SNSHandler = async (event: SNSEvent) => {
                 name: image.name,
                 watermark: image.watermark,
                 processed: image.processed,
+                processDate: image.processDate,
                 uploadUrl: image.uploadUrl
             }
         })

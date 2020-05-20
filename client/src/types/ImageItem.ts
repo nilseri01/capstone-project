@@ -3,7 +3,7 @@ export interface ImageItem {
     createdDate: string
     name: string
     watermark: string
-    processedDate: string
+    processDate: string
     processed: boolean
     uploadUrl: string
 }

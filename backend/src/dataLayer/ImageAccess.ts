@@ -91,7 +91,7 @@ export class ImageAccess {
         await this.docClient.update(params).promise();
     }
 
-    async setProcessed(imageId: String, userId: String) {
+    async setProcessed(imageId: String, userId: String, processDate: String) {
         var params = {
             TableName: this.imagesTable,
             TableIndex: this.indexUserIdCreatedDateName,
@@ -99,12 +99,14 @@ export class ImageAccess {
                 id: imageId,
                 userId: userId
             },
-            UpdateExpression: "set #processed = :a",
+            UpdateExpression: "set #processed = :a, #processDate = :processDate",
             ExpressionAttributeNames: {
-                '#processed': 'processed'
+                '#processed': 'processed',
+                '#processDate': 'processDate'
             },
             ExpressionAttributeValues: {
-                ":a": true
+                ':a': true,
+                ':processDate': processDate
             },
             ReturnValues: "ALL_NEW"
         };

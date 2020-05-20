@@ -4,10 +4,13 @@
     "type": "object",
     "properties": {
         "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 0
         },
         "watermark": {
-            "type": "string"
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 30
         }
     },
     "required": [

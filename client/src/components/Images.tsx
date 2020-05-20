@@ -74,6 +74,11 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
         return
       }
 
+      if (!this.state.watermark || this.state.watermark.length === 0) {
+        alert('Watermark text should not be empty')
+        return
+      }
+
       const newImage = await createImage(this.props.auth.getIdToken(), {
         name: this.state.name,
         watermark: this.state.watermark
@@ -85,12 +90,18 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
       await uploadFile(uploadUrl, this.state.file)
 
       this.setState({
-        images: [...this.state.images, newImage]
+        images: [...this.state.images, newImage],
       })
+
     } catch {
       alert('Image item creation failed')
     } finally {
       this.setUploadState(UploadState.NoUpload)
+
+      this.setState({
+        name: '',
+        watermark: ''
+      })
     }
   }
 
@@ -159,6 +170,7 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
         <Form.Field>
           <label>Watermark Text</label>
           <input
+            maxLength={30}
             placeholder="watermark..."
             onChange={this.handleWatermarkChange}
           />
@@ -210,8 +222,8 @@ export class Images extends React.PureComponent<ImagesProps, ImagesState> {
                 <p>Name: {image.name}</p>
                 <p>Watermark: {image.watermark}</p>
                 <p>CreatedDate: {image.createdDate}</p>
-                <p>Processed: {image.processed}</p>
-                <p>ProcessDate: {image.processedDate}</p>
+                <p>Processed: {String(image.processed)}</p>
+                <p>ProcessDate: {image.processDate}</p>
               </Grid.Column>
               <Grid.Column width={1} floated="right">
                 <Button
